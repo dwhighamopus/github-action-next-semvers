@@ -1,6 +1,6 @@
 name: Continuous Integration
 env:
-  DOCKER_IMAGE: wyrihaximusgithubactions/next-semvers
+  DOCKER_IMAGE: ${{ vars.NEXT_SEMVERS_DOCKER_IMAGE || 'wyrihaximusgithubactions/next-semvers' }}
   DOCKER_BUILDKIT: 1
 on:
   push:
@@ -116,12 +116,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
-      - run: sed -i $(echo "s/master/sha-$GITHUB_SHA/g") Dockerfile
       - name: 'Get Previous tag'
         id: semvers
         uses: ./
         with:
           version: v1.1.1
+          image: ${{ env.DOCKER_IMAGE }}:sha-${{ github.sha }}
       - name: Print Output
         run: |
           echo "${{ steps.semvers.outputs.v_patch }}"

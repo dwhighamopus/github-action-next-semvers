@@ -1,6 +1,6 @@
 name: Create Release
 env:
-  DOCKER_IMAGE: wyrihaximusgithubactions/next-semvers
+  DOCKER_IMAGE: ${{ vars.NEXT_SEMVERS_DOCKER_IMAGE || 'wyrihaximusgithubactions/next-semvers' }}
   MILESTONE: ${{ github.event.milestone.title }}
 on:
   milestone:

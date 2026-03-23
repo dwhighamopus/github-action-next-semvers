@@ -11,19 +11,43 @@ inputs:
     description: 'Strict version validation, when turned off, the version is suffixed with `.0` until it contains 3 x `.`.'
     default: "true"
     required: false
+  image:
+    description: 'Container image to run (full reference: registry path and tag or digest). Examples: wyrihaximusgithubactions/next-semvers:master, ghcr.io/my-org/next-semvers:main. For private registries, run docker/login-action before this action.'
+    default: 'wyrihaximusgithubactions/next-semvers:master'
+    required: false
 outputs:
   major:
     description: 'Next Major Version'
+    value: ${{ steps.next-semvers.outputs.major }}
   minor:
     description: 'Next Minor Version'
+    value: ${{ steps.next-semvers.outputs.minor }}
   patch:
     description: 'Next Patch Version'
+    value: ${{ steps.next-semvers.outputs.patch }}
   v_major:
     description: 'Next Major Version (prefixed with v)'
+    value: ${{ steps.next-semvers.outputs.v_major }}
   v_minor:
     description: 'Next Minor Version (prefixed with v)'
+    value: ${{ steps.next-semvers.outputs.v_minor }}
   v_patch:
     description: 'Next Patch Version (prefixed with v)'
+    value: ${{ steps.next-semvers.outputs.v_patch }}
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: composite
+  steps:
+    - id: next-semvers
+      run: |
+        docker run --rm \
+          -u "$(id -u):$(id -g)" \
+          -e "GITHUB_OUTPUT=${GITHUB_OUTPUT}" \
+          -v "${GITHUB_OUTPUT}:${GITHUB_OUTPUT}" \
+          -e "INPUT_VERSION=${INPUT_VERSION}" \
+          -e "INPUT_STRICT=${INPUT_STRICT}" \
+          "${INPUT_IMAGE}"
+      shell: bash
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+        INPUT_STRICT: ${{ inputs.strict }}
+        INPUT_IMAGE: ${{ inputs.image }}
